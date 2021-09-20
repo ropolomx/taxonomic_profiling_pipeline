@@ -59,8 +59,6 @@ rule kraken2:
         "--confidence {params.confidence} "
         "--minimum-base-quality {params.base_qual} "
         "--report {output.kraken_report} "
-        #"--memory-mapping "
-        "--use-mpa-style "
         "--paired "
         "--use-names "
         "--gzip-compressed "
