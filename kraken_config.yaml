@@ -1,1 +1,3 @@
 samples : samples.tab
+outdir  : results
+db      : /isilon/lethbridge-rdc/users/ortegapoloro/kraken2db/beerolama_v1

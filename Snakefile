@@ -2,11 +2,14 @@ import pandas as pd
 
 configfile: 'kraken_config.yaml'
 
+OUTDIR = config["outdir"]
+print('this is BONKERS:', OUTDIR)
+
 SAMPLE = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=False)
 
-KRAKEN_CLASSIFICATIONS = expand('beerolama_mpa_shallow/{sample}_classification.txt', sample = SAMPLE.index)
+KRAKEN_CLASSIFICATIONS = expand(OUTDIR + '/kraken/{sample}_classification.txt', sample = SAMPLE.index)
 
-KRAKEN_REPORTS = expand('beerolama_mpa_shallow/{sample}_report.txt', sample=SAMPLE.index)
+KRAKEN_REPORTS = expand(OUTDIR + '/kraken/{sample}_report.txt', sample=SAMPLE.index)
 
 rule all:
     input:
@@ -17,8 +20,8 @@ rule fastp:
         fwd=lambda wildcards: SAMPLE.loc[wildcards.sample, 'forward'],
         rev=lambda wildcards: SAMPLE.loc[wildcards.sample, 'reverse']
     output:
-        fwd='fastp_shallow/{sample}_fastp_R1.fastq.gz',
-        rev='fastp_shallow/{sample}_fastp_R2.fastq.gz'
+        fwd= OUTDIR + '/fastp/{sample}_fastp_R1.fastq.gz',
+        rev= OUTDIR + '/fastp/{sample}_fastp_R2.fastq.gz'
     conda:
         'envs/fastp.yaml'
     shell:
@@ -26,11 +29,11 @@ rule fastp:
 
 rule bowtie2:
     input:
-        fwd='fastp_shallow/{sample}_fastp_R1.fastq.gz',
-        rev='fastp_shallow/{sample}_fastp_R2.fastq.gz'
+        fwd= OUTDIR + '/fastp/{sample}_fastp_R1.fastq.gz',
+        rev= OUTDIR + '/fastp/{sample}_fastp_R2.fastq.gz'
     output:
-        fwd='{sample}_unmapped.fastq.1.gz',
-        rev='{sample}_unmapped.fastq.2.gz'
+        fwd= OUTDIR + '/unmapped/{sample}_unmapped.fastq.1.gz',
+        rev= OUTDIR + '/unmapped/{sample}_unmapped.fastq.2.gz'
     conda:
         'envs/bowtie2.yaml'
     log:
@@ -40,20 +43,21 @@ rule bowtie2:
 
 rule kraken2:
     input:
-        fwd='{sample}_unmapped.fastq.1.gz',
-        rev='{sample}_unmapped.fastq.2.gz'
+        fwd= OUTDIR + '/unmapped/{sample}_unmapped.fastq.1.gz',
+        rev= OUTDIR + '/unmapped/{sample}_unmapped.fastq.2.gz'
     params:
         thread = 16,
         confidence = 0,
-        base_qual = 0
+        base_qual = 0,
+        db = config["db"]
     output:
-        kraken_class = 'beerolama_mpa_shallow/{sample}_classification.txt',
-        kraken_report = 'beerolama_mpa_shallow/{sample}_report.txt'
+        kraken_class = OUTDIR + '/kraken/{sample}_classification.txt',
+        kraken_report = OUTDIR + '/kraken/{sample}_report.txt'
     conda:
         'envs/kraken2.yaml'
     shell:
         "kraken2 "
-        "--db /isilon/lethbridge-rdc/users/ortegapoloro/kraken2db/beerolama_v1 "
+        "--db {params.db} "
         "--threads {params.thread} "
         "--output {output.kraken_class} "
         "--confidence {params.confidence} "
