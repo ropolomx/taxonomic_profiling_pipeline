@@ -1,20 +1,22 @@
 import pandas as pd
 
-configfile: 'kraken_config.yaml'
+# Point to config file in which sample sheet, output path and kraken database are specified
+configfile: 'config.yaml'
 
+# Get output path
 OUTDIR = config["outdir"]
-
-
+# Get sample prefixes
 SAMPLE = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=False)
 ALL_FILES = [s+"_R1" for s in SAMPLE.index] + [s+"_R2" for s in SAMPLE.index]
 
+# Create list of expected Kraken output names
 KRAKEN_CLASSIFICATIONS = expand(OUTDIR + '/kraken/{sample}_classification.txt', sample = SAMPLE.index)
-
 KRAKEN_REPORTS = expand(OUTDIR + '/kraken/{sample}_report.txt', sample=SAMPLE.index)
-
+FASTP_AUX = expand(OUTDIR+'/fastp/{sample}_fastp.html', sample=SAMPLE.index)
+# Define end goal output
 rule all:
     input:
-        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html"
+        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html", FASTP_AUX
 
 rule fastp:
     input:
@@ -22,11 +24,13 @@ rule fastp:
         rev=lambda wildcards: SAMPLE.loc[wildcards.sample, 'reverse']
     output:
         fwd= OUTDIR + '/fastp/{sample}_fastp_R1.fastq.gz',
-        rev= OUTDIR + '/fastp/{sample}_fastp_R2.fastq.gz'
+        rev= OUTDIR + '/fastp/{sample}_fastp_R2.fastq.gz',
+        html= OUTDIR + '/fastp/{sample}_fastp.html',
+        json= OUTDIR + '/fastp/{sample}_fastp.json'
     conda:
         'envs/fastp.yaml'
     shell:
-        'fastp -i {input.fwd} -I {input.rev} -o {output.fwd} -O {output.rev}'
+        'fastp -i {input.fwd} -I {input.rev} -o {output.fwd} -O {output.rev} --html {output.html} --json {output.json}'
 
 rule bowtie2:
     input:
@@ -63,8 +67,6 @@ rule multiqc:
     input: expand(OUTDIR + '/fastqc/{readfile}_unmapped_fastqc.html', readfile=ALL_FILES)
     output: OUTDIR + '/multiqc_report.html'
     wrapper: "0.79.0/bio/multiqc"
-
-
 
 rule kraken2:
     input:
