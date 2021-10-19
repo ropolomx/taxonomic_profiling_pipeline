@@ -3,7 +3,7 @@
 
 This pipeline was developed using the [Snakemake worfklow management system](https://snakemake.readthedocs.io/en/stable/)
 
-You would need to have the Snakefile, the `env` folder and its contents (YAML files with environment definition), and a table with the absolute paths for forward and reverse reads files.
+You would need to have the Snakefile, the `env` folder and its contents (YAML files with environment definition), and a table with the absolute paths for forward and reverse reads files specified in `config.yaml`.
 
 To run in your computer
 
@@ -12,6 +12,12 @@ To run in your computer
 To run in a High Performance Computing cluster with the SGE job scheduler:
 
 `snakemake --cluster "qsub -V -cwd -pe smp {threads}" --use-conda`
+
+### Config options:
+The following attributes can be changed/specified in the `config.yaml` file:  
+- Input sample sheet file path  
+- The directory to which output is written (default `results`)  
+- The database used for Kraken classification
 
 ## Introduction:
 ### Requirements:
@@ -27,13 +33,15 @@ replacing `<env-name>` with a name of your choice.
 ### This workflow uses:
 - [fastp](https://github.com/OpenGene/fastp) to remove adapters and QC
 - [bowtie2](https://github.com/BenLangmead/bowtie2) to remove phiX genome reads
-- [kraken2](https://github.com/DerrickWood/kraken2/wiki) for taxonomic classification our curated BeeRoLaMa database
+- [kraken2](https://github.com/DerrickWood/kraken2/wiki) for taxonomic classification with our curated BeeRoLaMa database
+- [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for quality control for individual sequence files
+- [multiqc](https://github.com/ewels/MultiQC) for summary of all fastqc quality control reports
 
 ## To perform this analysis:
 1.	First navigate to the directory containing the read files (end in `.fastq.gz`)
 2.	Ensure there is a `.tab` file (eg. `samples_new.tab`) that contains all the filenames of the read files
 3.	Clone the Snakemake pipeline into the current directory
-4.	Ensure the `.tab` file (containing the sample names) is specified in the `kraken_config.yaml` file
+4.	Ensure the `.tab` file (containing the sample names) is specified in the `config.yaml` file
 5.	Either update `samples_new.tab` to point to the raw data files (eg. add `../` before all the file names), or copy all the contents of the repository to the same folder where the samples are, i.e. `cp -r taxonomic_profiling_pipeline/* .`
 6.	Copy the contents of the folder `/isilon/lacombe-rdc/users/tranlan/phiX` into the working directory folder. **(_TODO: generalize phiX instructions_)**
 7.	Update names of folders that will be generated during the run by replacing all instances of `beerolama_mpa_shallow` in the Snakefile to something like `cra_kraken2`

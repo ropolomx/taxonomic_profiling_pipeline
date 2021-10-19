@@ -1,0 +1,6 @@
+# Ignore Snakemake output files
+.snakemake/
+logs/
+phiX*
+results/
+snakejob*
