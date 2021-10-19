@@ -3,9 +3,10 @@ import pandas as pd
 configfile: 'kraken_config.yaml'
 
 OUTDIR = config["outdir"]
-print('this is BONKERS:', OUTDIR)
+
 
 SAMPLE = pd.read_csv(config["samples"], sep="\t").set_index("sample", drop=False)
+ALL_FILES = [s+"_R1" for s in SAMPLE.index] + [s+"_R2" for s in SAMPLE.index]
 
 KRAKEN_CLASSIFICATIONS = expand(OUTDIR + '/kraken/{sample}_classification.txt', sample = SAMPLE.index)
 
@@ -13,7 +14,7 @@ KRAKEN_REPORTS = expand(OUTDIR + '/kraken/{sample}_report.txt', sample=SAMPLE.in
 
 rule all:
     input:
-        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS
+        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html"
 
 rule fastp:
     input:
@@ -32,19 +33,43 @@ rule bowtie2:
         fwd= OUTDIR + '/fastp/{sample}_fastp_R1.fastq.gz',
         rev= OUTDIR + '/fastp/{sample}_fastp_R2.fastq.gz'
     output:
-        fwd= OUTDIR + '/unmapped/{sample}_unmapped.fastq.1.gz',
-        rev= OUTDIR + '/unmapped/{sample}_unmapped.fastq.2.gz'
+        fwd= OUTDIR + '/unmapped/{sample}_R1_unmapped.fastq.gz',
+        rev= OUTDIR + '/unmapped/{sample}_R2_unmapped.fastq.gz'
+    params:
+        out=OUTDIR
     conda:
         'envs/bowtie2.yaml'
     log:
         'logs/bowtie2/{sample}.log'
     shell:
-        '(bowtie2 -p 8 -x phiX -1 {input.fwd} -2 {input.rev} --un-conc-gz {wildcards.sample}_unmapped.fastq.gz) 2> {log}'
+        '(bowtie2 -p 8 -x phiX -1 {input.fwd} -2 {input.rev} --un-conc-gz {params.out}/unmapped/{wildcards.sample}_R%_unmapped.fastq.gz) 2> {log}'
+
+
+rule fastqc:
+    # wildcard 'readfile' is used because we must now run fastqc on forward and reverse reads
+    input: 
+        OUTDIR + '/unmapped/{readfile}_unmapped.fastq.gz'
+    output:
+        html= OUTDIR + '/fastqc/{readfile}_unmapped_fastqc.html',
+        zipp= OUTDIR + '/fastqc/{readfile}_unmapped_fastqc.zip'
+    params:
+        outd=OUTDIR
+    conda:
+        'envs/fastqc.yaml'
+    shell:
+        'fastqc {input} --outdir={params.outd}/fastqc'
+
+rule multiqc:
+    input: expand(OUTDIR + '/fastqc/{readfile}_unmapped_fastqc.html', readfile=ALL_FILES)
+    output: OUTDIR + '/multiqc_report.html'
+    wrapper: "0.79.0/bio/multiqc"
+
+
 
 rule kraken2:
     input:
-        fwd= OUTDIR + '/unmapped/{sample}_unmapped.fastq.1.gz',
-        rev= OUTDIR + '/unmapped/{sample}_unmapped.fastq.2.gz'
+        fwd= OUTDIR + '/unmapped/{sample}_R1_unmapped.fastq.gz',
+        rev= OUTDIR + '/unmapped/{sample}_R2_unmapped.fastq.gz'
     params:
         thread = 16,
         confidence = 0,
