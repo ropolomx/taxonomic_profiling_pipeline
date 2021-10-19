@@ -12,11 +12,11 @@ ALL_FILES = [s+"_R1" for s in SAMPLE.index] + [s+"_R2" for s in SAMPLE.index]
 # Create list of expected Kraken output names
 KRAKEN_CLASSIFICATIONS = expand(OUTDIR + '/kraken/{sample}_classification.txt', sample = SAMPLE.index)
 KRAKEN_REPORTS = expand(OUTDIR + '/kraken/{sample}_report.txt', sample=SAMPLE.index)
-FASTP_AUX = expand(OUTDIR+'/fastp/{sample}_fastp.html', sample=SAMPLE.index)
+
 # Define end goal output
 rule all:
     input:
-        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html", FASTP_AUX
+        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html"
 
 rule fastp:
     input:
