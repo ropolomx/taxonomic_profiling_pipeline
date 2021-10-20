@@ -16,7 +16,7 @@ KRAKEN_REPORTS = expand(OUTDIR + '/kraken/{sample}_report.txt', sample=SAMPLE.in
 # Define end goal output
 rule all:
     input:
-        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html"
+        KRAKEN_CLASSIFICATIONS, KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html", OUTDIR+"kronaplot.html"
 
 rule fastp:
     input:
@@ -94,3 +94,15 @@ rule kraken2:
         "--use-names "
         "--gzip-compressed "
         "{input.fwd} {input.rev}"
+
+rule krona:
+    input: expand(OUTDIR + '/kraken/{sample}_report.txt', sample = SAMPLE.index)
+    params:
+        db = config["db"]
+    output:
+        OUTDIR + 'kronaplot.html'
+    conda:
+        'envs/krona.yml'
+    shell:
+        "ktUpdateTaxonomy {params.db}"
+        "ktImportTaxonomy -m 3 -t 5 {input} -o {output}"
