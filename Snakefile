@@ -102,7 +102,7 @@ rule krona:
     output:
         OUTDIR + 'kronaplot.html'
     conda:
-        'envs/krona.yml'
+        'envs/krona.yaml'
     shell:
         "ktUpdateTaxonomy {params.db}"
         "ktImportTaxonomy -m 3 -t 5 {input} -o {output}"
