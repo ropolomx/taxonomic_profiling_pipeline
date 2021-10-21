@@ -35,7 +35,7 @@ def retain(flag, path):
 # Define end goal output
 rule all:
     input:
-        KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html"
+        KRAKEN_REPORTS, OUTDIR+"/multiqc_report.html", OUTDIR + '/kronaplot.html'
 
 rule fastp:
     input:
