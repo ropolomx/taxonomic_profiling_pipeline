@@ -17,7 +17,12 @@ To run in a High Performance Computing cluster with the SGE job scheduler:
 The following attributes can be changed/specified in the `config.yaml` file:  
 - Input sample sheet file path  
 - The directory to which output is written (default `results`)  
-- The database used for Kraken classification
+- The database used for Kraken classification  
+- Flags to specify whether you want to keep certain intermediate/output files:  
+    - Fastp processed read files - will likely be large and unneeded upon pipeline completion
+    - Bowtie2 processed read files - will likely be large and unneeded upon pipeline completion
+    - Kraken classification files - will likely be large and kraken reports are often sufficient
+    - Fastqc reports - not large, but multiqc report summarizes fastqc reports
 
 ## Introduction:
 ### Requirements:

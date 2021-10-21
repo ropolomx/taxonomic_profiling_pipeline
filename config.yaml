@@ -1,3 +1,9 @@
-samples : samples.tab
-outdir  : results
-db      : /isilon/lethbridge-rdc/users/ortegapoloro/kraken2db/beerolama_v1
+samples: samples.tab
+outdir: results
+db: /isilon/lethbridge-rdc/users/ortegapoloro/kraken2db/beerolama_v1
+
+# Flags for specifying whether you want to keep certain output products
+keep_fastp: false # The fastp processed read files
+keep_bowtie2: false # The bowtie2 processed read files
+keep_kraken_class: false # The kraken_classification files
+keep_fastqc: false # The individual fastqc reports
