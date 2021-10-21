@@ -97,12 +97,10 @@ rule kraken2:
 
 rule krona:
     input: expand(OUTDIR + '/kraken/{sample}_report.txt', sample = SAMPLE.index)
-    params:
-        db = config["db"]
     output:
         OUTDIR + '/kronaplot.html'
     conda:
         'envs/krona.yaml'
     shell:
-        """ktUpdateTaxonomy.sh {params.db}
+        """ktUpdateTaxonomy.sh
         ktImportTaxonomy -m 3 -t 5 {input} -o {output}"""
