@@ -41,6 +41,8 @@ replacing `<env-name>` with a name of your choice.
 - [kraken2](https://github.com/DerrickWood/kraken2/wiki) for taxonomic classification with our curated BeeRoLaMa database
 - [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for quality control for individual sequence files
 - [multiqc](https://github.com/ewels/MultiQC) for summary of all fastqc quality control reports
+- [krona](https://github.com/marbl/Krona/wiki) for taxonomy result visualization
+
 
 ## To perform this analysis:
 1.	First navigate to the directory containing the read files (end in `.fastq.gz`)
@@ -55,8 +57,9 @@ replacing `<env-name>` with a name of your choice.
 8.	Activate the conda environment containing Snakemake: eg. `conda activate Snakemake`
 9.	Perform a dry run: `snakemake –nr`
     - All green messages is good, errors will show up in red
-10.	Run the workflow: `snakemake  --cluster "qsub -V -cwd -pe smp {threads}" --use-conda -j <number_of_jobs>`
+10.	Run the workflow: `snakemake  --cluster "qsub -V -cwd -pe smp {threads}" --use-conda -j <number_of_jobs> [--latency-wait <seconds>]`
     - Replace `<number_of_jobs>` with the number of `.fastq.gz` files divided by 2
+    - The `--latency-wait` is optional. The Krona rule has raised a false error in which it says the output file has not produced when it actually has. A wait of 60s has prevented this error.
 
 ---
 

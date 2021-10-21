@@ -113,3 +113,13 @@ rule kraken2:
         "--use-names "
         "--gzip-compressed "
         "{input.fwd} {input.rev}"
+
+rule krona:
+    input: expand(OUTDIR + '/kraken/{sample}_report.txt', sample = SAMPLE.index)
+    output:
+        OUTDIR + '/kronaplot.html'
+    conda:
+        'envs/krona.yaml'
+    shell:
+        """ktUpdateTaxonomy.sh
+        ktImportTaxonomy -m 3 -t 5 {input} -o {output}"""
