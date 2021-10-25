@@ -48,16 +48,18 @@ replacing `<env-name>` with a name of your choice.
 1.	First navigate to the directory containing the read files (end in `.fastq.gz`)
 2.	Ensure there is a `.tab` file (eg. `samples_new.tab`) that contains all the filenames of the read files
 3.	Clone the Snakemake pipeline into the current directory
+    - `git clone https://github.com/BeeCSI-Microbiome/taxonomic_profiling_pipeline.git`
 4.	Ensure the `.tab` file (containing the sample names) is specified in the `config.yaml` file
 5.	Either update `samples_new.tab` to point to the raw data files (eg. add `../` before all the file names), or copy all the contents of the repository to the same folder where the samples are, eg. `cp -r taxonomic_profiling_pipeline/* .`
 6.	Copy an indexed phiX genome into the directory where the Snakemake will be run. 
     - `cp /isilon/lacombe-rdc/users/tranlan/phiX/* .` if on AAFC Biocluster
-    - **(TODO: generalize phiX instructions)**
-7.	Update names of folders that will be generated during the run by replacing all instances of `beerolama_mpa_shallow` in the Snakefile to something like `cra_kraken2`
-8.	Activate the conda environment containing Snakemake: eg. `conda activate Snakemake`
-9.	Perform a dry run: `snakemake –nr`
+    - ***(TODO: generalize phiX instructions)***
+7.	Activate the conda environment containing Snakemake
+    - `conda activate Snakemake`
+8.	Perform a dry run: 
+    - `snakemake –nr`
     - All green messages is good, errors will show up in red
-10.	Run the workflow: `snakemake  --cluster "qsub -V -cwd -pe smp {threads}" --use-conda -j <number_of_jobs> [--latency-wait <seconds>]`
+9.	Run the workflow: `snakemake  --cluster "qsub -V -cwd -pe smp {threads}" --use-conda -j <number_of_jobs> [--latency-wait <seconds>]`
     - Replace `<number_of_jobs>` with the number of `.fastq.gz` files divided by 2
     - The `--latency-wait` is optional. The Krona rule has raised a false error in which it says the output file has not produced when it actually has. A wait of 60s has prevented this error.
 
