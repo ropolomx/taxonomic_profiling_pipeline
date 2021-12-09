@@ -107,6 +107,8 @@ rule kraken2:
         kraken_report = OUTDIR + '/kraken/{sample}_report.txt'
     conda:
         'envs/kraken2.yaml'
+    container:
+        '/isilon/lethbridge-rdc/users/ortegapoloro/new_cache/depot.galaxyproject.org-singularity-kraken2-2.0.8_beta--pl526hc9558a2_2.img'
     shell:
         "kraken2 "
         "--db {params.db} "
