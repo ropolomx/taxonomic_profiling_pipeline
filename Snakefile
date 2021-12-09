@@ -128,6 +128,8 @@ rule krona:
         OUTDIR + '/kronaplot.html'
     conda:
         'envs/krona.yaml'
+    container:
+        '/isilon/lethbridge-rdc/users/ortegapoloro/new_cache/depot.galaxyproject.org-singularity-krona-2.7.1--pl526_5.img'
     shell:
         """ktUpdateTaxonomy.sh
         ktImportTaxonomy -m 3 -t 5 {input} -o {output}"""
