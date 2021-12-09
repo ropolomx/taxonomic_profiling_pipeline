@@ -83,6 +83,8 @@ rule fastqc:
         outd=OUTDIR
     conda:
         'envs/fastqc.yaml'
+    container:
+        '/isilon/lethbridge-rdc/users/ortegapoloro/new_cache/depot.galaxyproject.org-singularity-fastqc-0.11.9--0.img'
     shell:
         'fastqc {input} --outdir={params.outd}/fastqc'
 
