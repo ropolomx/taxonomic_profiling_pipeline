@@ -66,6 +66,7 @@ rule bowtie2:
         'envs/bowtie2.yaml'
     container:
         '/isilon/lethbridge-rdc/users/ortegapoloro/new_cache/depot.galaxyproject.org-singularity-bowtie2-2.4.2--py38h1c8e9b9_1.img'
+    threads: 8
     log:
         'logs/bowtie2/{sample}.log'
     shell:
