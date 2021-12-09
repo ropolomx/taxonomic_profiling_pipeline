@@ -48,6 +48,8 @@ rule fastp:
         json= OUTDIR + '/fastp/{sample}_fastp.json'
     conda:
         'envs/fastp.yaml'
+    container:
+        '/isilon/lethbridge-rdc/users/ortegapoloro/new_cache/depot.galaxyproject.org-singularity-fastp-0.20.1--h8b12597_0.img'
     shell:
         'fastp -i {input.fwd} -I {input.rev} -o {output.fwd} -O {output.rev} --html {output.html} --json {output.json}'
 
